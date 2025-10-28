@@ -77,6 +77,20 @@ export default function App() {
     }
   };
 
+  const formatValue = (text: string) => {
+  // Remove tudo que não seja número
+  let numericValue = text.replace(/\D/g, "");
+
+  // Transforma em centavos (2 últimos dígitos)
+  numericValue = (parseInt(numericValue || "0") / 100).toFixed(2);
+
+  // Substitui ponto por vírgula
+  numericValue = numericValue.replace(".", ",");
+
+  setValue(numericValue);
+};
+
+
   const addRefund = () => {
   if (!name || !selectedCategory || !value || !fileName || !fileUri) {
     Alert.alert("Preencha todos os campos antes de adicionar!");
@@ -87,7 +101,7 @@ export default function App() {
     id: Date.now().toString(),
     name,
     category: selectedCategory,
-    value,
+    value: value.replace("," , "."),
     fileName,
     fileUri,
   };
@@ -266,7 +280,7 @@ export default function App() {
                   placeholderTextColor="#999"
                   keyboardType="numeric"
                   value={value}
-                  onChangeText={setValue}
+                  onChangeText={formatValue}
                   style={styles.modalInput}
                 />
               </View>
@@ -302,7 +316,7 @@ export default function App() {
               <TextInput
                 value={selectedRefund.name}
                 editable={false}
-                style={styles.modalInput}
+                style={styles.modalInput2}
               />
 
             <View style={styles.row}>
@@ -311,7 +325,7 @@ export default function App() {
               <TextInput
                 value={selectedRefund.category}
                 editable={false}
-                style={styles.modalInput}
+                style={styles.modalInput2}
               />
               </View>
 
@@ -320,7 +334,7 @@ export default function App() {
               <TextInput
                 value={selectedRefund.value}
                 editable={false}
-                style={styles.modalInput}
+                style={styles.modalInput2}
                 />
                 </View>
                 </View>
@@ -471,6 +485,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 15.5,
     color: "#000",
+  },
+  modalInput2: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#dcdcdc",
+    borderRadius: 8,
+    padding: 15.5,
+    color: "#999",
   },
   row: { 
     flexDirection: "row", 
