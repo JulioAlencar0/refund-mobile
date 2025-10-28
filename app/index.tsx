@@ -78,29 +78,54 @@ export default function App() {
   };
 
   const addRefund = () => {
-    if (!name || !selectedCategory || !value || !fileName || !fileUri) {
-      Alert.alert("Preencha todos os campos antes de adicionar!");
-      return;
-    }
+  if (!name || !selectedCategory || !value || !fileName || !fileUri) {
+    Alert.alert("Preencha todos os campos antes de adicionar!");
+    return;
+  }
 
-    const newRefund: Refund = {
-      id: Date.now().toString(),
-      name,
-      category: selectedCategory,
-      value,
-      fileName,
-      fileUri,
-    };
-
-    setRefunds([...refunds, newRefund]);
-    setShowAddModal(false);
-    setSuccessModal(true);
-    setName("");
-    setSelectedCategory("");
-    setValue("");
-    setFileName("");
-    setFileUri(null);
+  const newRefund: Refund = {
+    id: Date.now().toString(),
+    name,
+    category: selectedCategory,
+    value,
+    fileName,
+    fileUri,
   };
+
+  setRefunds([...refunds, newRefund]);
+
+  // Aqui vem o alert bonitinho
+  Alert.alert(
+    "Sua solicitação foi criada com sucesso.",
+    "Deseja criar outra?",
+    [
+      {
+        text: "Criar outra",
+        onPress: () => {
+          // limpa os campos 
+          setName("");
+          setSelectedCategory("");
+          setValue("");
+          setFileName("");
+          setFileUri(null);
+        },
+      },
+      {
+        text: "Fechar",
+        onPress: () => setShowAddModal(false),
+        style: "cancel",
+      },
+    ]
+  );
+
+  // Reset
+  setName("");
+  setSelectedCategory("");
+  setValue("");
+  setFileName("");
+  setFileUri(null);
+};
+
 
   const deleteRefund = (id: string) => {
     setRefunds(refunds.filter((r) => r.id !== id));
@@ -110,10 +135,10 @@ export default function App() {
   const confirmDeleteRefund = (id: string) => {
     Alert.alert(
       "Excluir solicitação",
-      "Você quer mesmo apagar essa solicitação? Não tem mais volta.",
+      "Você quer mesmo apagar essa solicitação?",
       [
         { text: "Cancelar", style: "cancel" },
-        { text: "Sim", style: "destructive", onPress: () => deleteRefund(id) },
+        { text: "Excluir", style: "destructive", onPress: () => deleteRefund(id) },
       ]
     );
   };
@@ -127,13 +152,13 @@ export default function App() {
       case "Alimentação":
         return <MaterialIcons name="restaurant" size={20} color="#1F8459" />;
       case "Hospedagem":
-        return <FontAwesome5 name="hotel" size={20} color="#1F8459" />;
+        return <FontAwesome5 name="bed" size={20} color="#1F8459" />;
       case "Transporte":
         return <FontAwesome5 name="car" size={20} color="#1F8459" />;
       case "Serviços":
         return <Entypo name="tools" size={20} color="#1F8459" />;
       default:
-        return <MaterialIcons name="help-outline" size={20} color="#1F8459" />;
+        return <FontAwesome5 name="clipboard" size={20} color="#1F8459" />;
     }
   };
 
@@ -266,7 +291,7 @@ export default function App() {
         </View>
       </Modal>
 
-      {/* Modal Visualização */}
+      {/* Modal Detalhes */}
       {selectedRefund && (
         <Modal visible={showViewModal} transparent animationType="slide">
           <View style={styles.modalBackground}>
@@ -300,12 +325,11 @@ export default function App() {
                 </View>
                 </View>
 
-              <Text style={styles.label}>Comprovante</Text>
               <TouchableOpacity
                 style={styles.fileOpen}
                 onPress={() => openFile(selectedRefund.fileUri)}
               >
-                 <MaterialIcons style={{position:"absolute", right: 140}} name="book" size={20} color="#1F8459" />;
+                 <MaterialIcons style={{position:"absolute", right: 140}} name="book" size={20} color="#1F8459" />
                 <Text style={{color: "#1F8459", fontWeight:"600"}}>Abrir Comprovante</Text>
               </TouchableOpacity>
 
@@ -331,8 +355,19 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#E4ECE9", alignItems: "center" },
-  logo: { width: 120, height: 30, position: "absolute", top: 60, left: 20 },
+  container: { 
+    flex: 1, 
+    backgroundColor: "#E4ECE9", 
+    alignItems: "center", 
+    marginTop: 10
+  },
+  logo: { 
+    width: 120, 
+    height: 30, 
+    position: "absolute", 
+    top: 60, 
+    left: 20 
+  },
   btnRefund: {
     position: "absolute",
     top: 55,
@@ -352,7 +387,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "600",
-    marginBottom: 10,
+    marginBottom: 15,
   },
   input: {
     backgroundColor: "#fbfbfb",
@@ -370,7 +405,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  refundLeft: { flexDirection: "row", alignItems: "center", gap: 10 },
+  refundLeft: { 
+    flexDirection: "row", 
+    alignItems: "center", 
+    gap: 10 
+  },
   iconCircle: {
     width: 36,
     height: 36,
@@ -379,9 +418,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-    refundName: { fontWeight: "700", color: "#1a1a1a", fontSize: 14 },
-  refundCategory: { color: "#666", fontSize: 13 },
-  refundValue: { fontWeight: "700", color: "#000", fontSize: 14 },
+    refundName: { 
+      fontWeight: "700", 
+      color: "#1a1a1a", 
+      fontSize: 14 
+    },
+  refundCategory: { 
+    color: "#666", 
+    fontSize: 13 
+  },
+  refundValue: { 
+    fontWeight: "700", 
+    color: "#000", 
+    fontSize: 14 
+  },
   modalBackground: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.4)",
@@ -397,7 +447,7 @@ const styles = StyleSheet.create({
   },
   modalDetails: {
     width: "90%",
-    height: "48%",
+    height: "45%",
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 20,
@@ -408,7 +458,12 @@ const styles = StyleSheet.create({
     color: "#000",
     marginBottom: 10,
   },
-  label: { fontSize: 13, color: "#333", marginBottom: 5, marginTop: 10 },
+  label: { 
+    fontSize: 13, 
+    color: "#333", 
+    marginBottom: 5, 
+    marginTop: 10 
+  },
   modalInput: {
     backgroundColor: "#fff",
     borderWidth: 1,
@@ -417,7 +472,10 @@ const styles = StyleSheet.create({
     padding: 15.5,
     color: "#000",
   },
-  row: { flexDirection: "row", justifyContent: "space-between" },
+  row: { 
+    flexDirection: "row", 
+    justifyContent: "space-between" 
+  },
   filePicker: {
     backgroundColor: "#eee",
     padding: 10,
@@ -449,6 +507,7 @@ const styles = StyleSheet.create({
     width: 150,
     alignItems: "center",
     marginLeft: "31%",    
-    margin: 5
+    marginTop: 32,
+    marginBottom: 16
   },
 });
