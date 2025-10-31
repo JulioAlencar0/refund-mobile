@@ -2,7 +2,7 @@ import { Entypo, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
 import { Image } from "expo-image";
 import * as Sharing from "expo-sharing";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -12,7 +12,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 
@@ -26,6 +26,8 @@ export default function App() {
     fileUri: string;
   };
 
+  const API_URL = "http://192.168.50.138:3000";
+
   const [refunds, setRefunds] = useState<Refund[]>([]);
   const [selectedRefund, setSelectedRefund] = useState<Refund | null>(null);
   const [name, setName] = useState("");
@@ -36,7 +38,6 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
-  const [successModal, setSuccessModal] = useState(false);
 
   // Dropdown Picker states
   const [openCategory, setOpenCategory] = useState(false);
@@ -47,6 +48,30 @@ export default function App() {
     { label: "Serviços", value: "Serviços" },
     { label: "Outros", value: "Outros" },
   ]);
+
+  // 🔹 Função para resetar todos os campos do formulário
+  const resetForm = () => {
+    setName("");
+    setSelectedCategory("");
+    setValue("");
+    setFileName("");
+    setFileUri(null);
+  };
+
+  // 🔹 Carrega as solicitações da API
+  const fetchRefunds = async () => {
+    try {
+      const res = await fetch(`${API_URL}/requests`);
+      const data = await res.json();
+      setRefunds(data);
+    } catch (error) {
+      console.error("Erro ao carregar solicitações:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRefunds();
+  }, []);
 
   const handlePickFile = async () => {
     try {
@@ -65,96 +90,87 @@ export default function App() {
     }
   };
 
-  const openFile = async (uri: string) => {
+  const openFile = async (uri: string | null) => {
     try {
-      if (!(await Sharing.isAvailableAsync())) {
+      if (!uri) {
+        Alert.alert("Nenhum arquivo encontrado.");
+        return;
+      }
+
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (!isAvailable) {
         Alert.alert("Não é possível abrir o arquivo neste dispositivo.");
         return;
       }
+
       await Sharing.shareAsync(uri);
     } catch (error) {
       console.error("Erro ao abrir o arquivo:", error);
+      Alert.alert("Erro ao abrir o arquivo.");
     }
   };
 
   const formatValue = (text: string) => {
-  // Remove tudo que não seja número
-  let numericValue = text.replace(/\D/g, "");
-
-  // Transforma em centavos (2 últimos dígitos)
-  numericValue = (parseInt(numericValue || "0") / 100).toFixed(2);
-
-  // Substitui ponto por vírgula
-  numericValue = numericValue.replace(".", ",");
-
-  setValue(numericValue);
-};
-
-
-  const addRefund = () => {
-  if (!name || !selectedCategory || !value || !fileName || !fileUri) {
-    Alert.alert("Preencha todos os campos antes de adicionar!");
-    return;
-  }
-
-  const newRefund: Refund = {
-    id: Date.now().toString(),
-    name,
-    category: selectedCategory,
-    value: value.replace("," , "."),
-    fileName,
-    fileUri,
+    let numericValue = text.replace(/\D/g, "");
+    numericValue = (parseInt(numericValue || "0") / 100).toFixed(2);
+    numericValue = numericValue.replace(".", ",");
+    setValue(numericValue);
   };
 
-  setRefunds([...refunds, newRefund]);
+  const addRefund = async () => {
+    if (!name || !selectedCategory || !value || !fileName || !fileUri) {
+      Alert.alert("Preencha todos os campos antes de adicionar!");
+      return;
+    }
 
-  // Aqui vem o alert bonitinho
-  Alert.alert(
-    "Sua solicitação foi criada com sucesso.",
-    "Deseja criar outra?",
-    [
-      {
-        text: "Criar outra",
-        onPress: () => {
-          // limpa os campos 
-          setName("");
-          setSelectedCategory("");
-          setValue("");
-          setFileName("");
-          setFileUri(null);
-        },
-      },
-      {
-        text: "Fechar",
-        onPress: () => setShowAddModal(false),
-        style: "cancel",
-      },
-    ]
-  );
+    const newRefund: Refund = {
+      id: Date.now().toString(),
+      name,
+      category: selectedCategory,
+      value: value.replace(",", "."),
+      fileName,
+      fileUri,
+    };
 
-  // Reset
-  setName("");
-  setSelectedCategory("");
-  setValue("");
-  setFileName("");
-  setFileUri(null);
-};
+    try {
+      const response = await fetch(`${API_URL}/requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newRefund),
+      });
 
+      if (!response.ok) {
+        throw new Error("Erro ao criar solicitação");
+      }
 
-  const deleteRefund = (id: string) => {
-    setRefunds(refunds.filter((r) => r.id !== id));
-    setShowViewModal(false);
+      setRefunds([...refunds, newRefund]);
+      Alert.alert("Solicitação criada com sucesso!");
+
+      // 🔹 Limpa tudo e fecha o modal após criar
+      resetForm();
+      setShowAddModal(false);
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Erro ao salvar solicitação.");
+    }
+  };
+
+  const deleteRefund = async (id: string) => {
+    try {
+      await fetch(`${API_URL}/requests/${id}`, { method: "DELETE" });
+      setRefunds(refunds.filter((r) => r.id !== id));
+      setShowViewModal(false);
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Erro ao excluir solicitação.");
+    }
   };
 
   const confirmDeleteRefund = (id: string) => {
-    Alert.alert(
-      "Excluir solicitação",
-      "Você quer mesmo apagar essa solicitação?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        { text: "Excluir", style: "destructive", onPress: () => deleteRefund(id) },
-      ]
-    );
+    Alert.alert("Excluir solicitação", "Você quer mesmo apagar essa solicitação?", [
+      { text: "Cancelar", style: "cancel" },
+      { text: "Excluir", style: "destructive", onPress: () => deleteRefund(id) },
+    ]);
   };
 
   const filteredRefunds = refunds.filter((r) =>
@@ -180,17 +196,14 @@ export default function App() {
     <View style={styles.container}>
       <StatusBar backgroundColor="#E4ECE9" barStyle="dark-content" />
       <Image source={require("../assets/Logo.png")} style={styles.logo} />
-      <TouchableOpacity
-        style={styles.btnRefund}
-        onPress={() => setShowAddModal(true)}
-      >
-        <Text style={{ color: "#fff", fontWeight: "500" }}>
-          Nova solicitação
-        </Text>
+
+      <TouchableOpacity style={styles.btnRefund} onPress={() => setShowAddModal(true)}>
+        <Text style={{ color: "#fff", fontWeight: "500" }}>Nova solicitação</Text>
       </TouchableOpacity>
 
       <View style={styles.content}>
         <Text style={styles.title}>Suas solicitações</Text>
+
         <TextInput
           style={styles.input}
           placeholder="Pesquise pelo nome"
@@ -211,9 +224,7 @@ export default function App() {
               }}
             >
               <View style={styles.refundLeft}>
-                <View style={styles.iconCircle}>
-                  {getCategoryIcon(item.category)}
-                </View>
+                <View style={styles.iconCircle}>{getCategoryIcon(item.category)}</View>
                 <View>
                   <Text style={styles.refundName}>{item.name}</Text>
                   <Text style={styles.refundCategory}>{item.category}</Text>
@@ -232,7 +243,7 @@ export default function App() {
         />
       </View>
 
-      {/* Modal Nova Solicitação */}
+      {/* 🔹 Modal Nova Solicitação — layout mantido */}
       <Modal visible={showAddModal} transparent animationType="slide">
         <View style={styles.modalBackground}>
           <View style={styles.modal}>
@@ -264,7 +275,7 @@ export default function App() {
                     borderRadius: 8,
                     height: 45,
                   }}
-                  textStyle={{ color: "#000000ff", fontSize: 14 }}
+                  textStyle={{ color: "#000", fontSize: 14 }}
                   dropDownContainerStyle={{
                     backgroundColor: "#fff",
                     borderColor: "#dcdcdc",
@@ -297,7 +308,10 @@ export default function App() {
 
             <TouchableOpacity
               style={styles.cancelBtn}
-              onPress={() => setShowAddModal(false)}
+              onPress={() => {
+                resetForm(); // 🔹 limpa os campos
+                setShowAddModal(false); // 🔹 fecha o modal
+              }}
             >
               <Text style={{ color: "#333" }}>Cancelar</Text>
             </TouchableOpacity>
@@ -305,7 +319,7 @@ export default function App() {
         </View>
       </Modal>
 
-      {/* Modal Detalhes */}
+      {/* 🔹 Modal Detalhes */}
       {selectedRefund && (
         <Modal visible={showViewModal} transparent animationType="slide">
           <View style={styles.modalBackground}>
@@ -313,38 +327,41 @@ export default function App() {
               <Text style={styles.modalTitle}>Detalhes da solicitação</Text>
 
               <Text style={styles.label}>Nome da solicitação</Text>
-              <TextInput
-                value={selectedRefund.name}
-                editable={false}
-                style={styles.modalInput2}
-              />
+              <TextInput value={selectedRefund.name} editable={false} style={styles.modalInput2} />
 
-            <View style={styles.row}>
-              <View style={{ flex: 1, marginRight: 5 }}>
-              <Text style={styles.label}>Categoria</Text>
-              <TextInput
-                value={selectedRefund.category}
-                editable={false}
-                style={styles.modalInput2}
-              />
+              <View style={styles.row}>
+                <View style={{ flex: 1, marginRight: 5 }}>
+                  <Text style={styles.label}>Categoria</Text>
+                  <TextInput
+                    value={selectedRefund.category}
+                    editable={false}
+                    style={styles.modalInput2}
+                  />
+                </View>
+
+                <View style={{ flex: 1, marginLeft: 5 }}>
+                  <Text style={styles.label}>Valor</Text>
+                  <TextInput
+                    value={`R$ ${parseFloat(selectedRefund.value)
+                      .toFixed(2)
+                      .replace(".", ",")}`}
+                    editable={false}
+                    style={styles.modalInput2}
+                  />
+                </View>
               </View>
-
-              <View style={{ flex: 1, marginLeft: 5 }}>
-              <Text style={styles.label}>Valor</Text>
-              <TextInput
-                value={selectedRefund.value}
-                editable={false}
-                style={styles.modalInput2}
-                />
-                </View>
-                </View>
 
               <TouchableOpacity
                 style={styles.fileOpen}
                 onPress={() => openFile(selectedRefund.fileUri)}
               >
-                 <MaterialIcons style={{position:"absolute", right: 140}} name="book" size={20} color="#1F8459" />
-                <Text style={{color: "#1F8459", fontWeight:"600"}}>Abrir Comprovante</Text>
+                <MaterialIcons
+                  style={{ position: "absolute", right: 140 }}
+                  name="book"
+                  size={20}
+                  color="#1F8459"
+                />
+                <Text style={{ color: "#1F8459", fontWeight: "600" }}>Abrir Comprovante</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -354,10 +371,7 @@ export default function App() {
                 <Text style={{ color: "#fff", fontWeight: "600" }}>Excluir</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.cancelBtn}
-                onPress={() => setShowViewModal(false)}
-              >
+              <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowViewModal(false)}>
                 <Text style={{ color: "#333" }}>Cancelar</Text>
               </TouchableOpacity>
             </View>
@@ -368,19 +382,20 @@ export default function App() {
   );
 }
 
+// 🔹 Styles mantidos
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: "#E4ECE9", 
-    alignItems: "center", 
-    marginTop: 10
+  container: {
+    flex: 1,
+    backgroundColor: "#E4ECE9",
+    alignItems: "center",
+    marginTop: 10,
   },
-  logo: { 
-    width: 120, 
-    height: 30, 
-    position: "absolute", 
-    top: 60, 
-    left: 20 
+  logo: {
+    width: 120,
+    height: 30,
+    position: "absolute",
+    top: 60,
+    left: 20,
   },
   btnRefund: {
     position: "absolute",
@@ -419,10 +434,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  refundLeft: { 
-    flexDirection: "row", 
-    alignItems: "center", 
-    gap: 10 
+  refundLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
   iconCircle: {
     width: 36,
@@ -432,19 +447,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-    refundName: { 
-      fontWeight: "700", 
-      color: "#1a1a1a", 
-      fontSize: 14 
-    },
-  refundCategory: { 
-    color: "#666", 
-    fontSize: 13 
+  refundName: {
+    fontWeight: "700",
+    color: "#1a1a1a",
+    fontSize: 14,
   },
-  refundValue: { 
-    fontWeight: "700", 
-    color: "#000", 
-    fontSize: 14 
+  refundCategory: {
+    color: "#666",
+    fontSize: 13,
+  },
+  refundValue: {
+    fontWeight: "700",
+    color: "#000",
+    fontSize: 14,
   },
   modalBackground: {
     flex: 1,
@@ -472,11 +487,11 @@ const styles = StyleSheet.create({
     color: "#000",
     marginBottom: 10,
   },
-  label: { 
-    fontSize: 13, 
-    color: "#333", 
-    marginBottom: 5, 
-    marginTop: 10 
+  label: {
+    fontSize: 13,
+    color: "#333",
+    marginBottom: 5,
+    marginTop: 10,
   },
   modalInput: {
     backgroundColor: "#fff",
@@ -494,9 +509,9 @@ const styles = StyleSheet.create({
     padding: 15.5,
     color: "#999",
   },
-  row: { 
-    flexDirection: "row", 
-    justifyContent: "space-between" 
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   filePicker: {
     backgroundColor: "#eee",
@@ -528,8 +543,8 @@ const styles = StyleSheet.create({
   fileOpen: {
     width: 150,
     alignItems: "center",
-    marginLeft: "31%",    
+    marginLeft: "31%",
     marginTop: 32,
-    marginBottom: 16
+    marginBottom: 16,
   },
 });
