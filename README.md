@@ -1,7 +1,4 @@
 
-<img width="2880" height="1620" alt="Thumbnail" src="https://github.com/user-attachments/assets/8e4fc2c8-f2a0-4326-9ccd-8fea5dd64717" />
-
-
 # 💸 Sistema de Reembolso - Refund System
 
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
