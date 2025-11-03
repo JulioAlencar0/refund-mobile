@@ -1,50 +1,84 @@
-# Welcome to your Expo app 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+<img width="2880" height="1620" alt="Thumbnail" src="https://github.com/user-attachments/assets/8e4fc2c8-f2a0-4326-9ccd-8fea5dd64717" />
 
-## Get started
 
-1. Install dependencies
+# 💸 Sistema de Reembolso - Refund System
 
-   ```bash
-   npm install
-   ```
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![React Native](https://img.shields.io/badge/React%20Native-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Expo](https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Axios](https://img.shields.io/badge/Axios-671ddf?style=for-the-badge)
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 📖 Descrição
 
-In the output, you'll find options to open the app in a
+O **Sistema de Reembolso (Refund System)** é uma aplicação completa que permite criar, visualizar e gerenciar solicitações de reembolso corporativo.  
+Foi desenvolvida com **Node.js + Express (API)** e **React Native (Expo)**, integrando upload de comprovantes e listagem dinâmica.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 🚀 Tecnologias Utilizadas
 
-## Get a fresh project
+### 🖥️ Backend (API)
+- Node.js
+- Express
+- PostgreSQL / SQLite
+- Sequelize ORM
+- Cors
+- Nodemon
 
-When you're ready, run:
+### 📱 Frontend Mobile
+- React Native (Expo)
+- TypeScript
+- Axios
+- DropDownPicker
+- Expo DocumentPicker
+- Expo Sharing
+- Expo Image
 
+---
+
+## 📁 Estrutura do Projeto
+
+📦 refund-system
+├── 📁 api
+│ ├── server.js
+│ ├── 📁 config
+│ ├── 📁 controllers
+│ ├── 📁 models
+│ └── 📁 routes
+│
+└── 📁 refund-mobile
+├── App.tsx
+├── 📁 assets
+├── 📁 components
+├── 📁 screens
+└── 📁 services
+
+
+---
+
+## ⚙️ Como Rodar o Projeto
+
+### 🧩 1. Clonar o repositório
 ```bash
-npm run reset-project
+git clone https://github.com/seuusuario/refund-system.git
+cd refund-system
+
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Desenvolvido por Júlio César👨‍💻
 
-## Learn more
+💚 Estudante de Análise e Desenvolvimento de Sistemas
+🚀 Sonhando alto e construindo o futuro com código.
 
-To learn more about developing your project with Expo, look at the following resources:
+📧 Email: julioc.alencar30@gmail.com
+🌍 LinkedIn: [linkedin.com/in/juliocalencar](https://www.linkedin.com/in/juliocalencar)
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+🧾 Licença
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Este projeto está sob a licença MIT.
+Sinta-se livre para usar, modificar e contribuir! ✨
