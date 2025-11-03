@@ -62,7 +62,7 @@ Foi desenvolvida com **Node.js + Express (API)** e **React Native (Expo)**, inte
 
 ### 🧩 1. Clonar o repositório
 ```bash
-git clone https://github.com/seuusuario/refund-system.git
+git clone https://github.com/JulioAlencar0/refund-system.git
 cd refund-system
 
 ```
