@@ -1,5 +1,7 @@
+<img width="1921" height="961" alt="Cover Project" src="https://github.com/user-attachments/assets/adb10085-8395-41f0-be54-038b9d4b8be4" />
 
 # 💸 Sistema de Reembolso - Refund System
+
 
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
 ![React Native](https://img.shields.io/badge/React%20Native-61DAFB?style=for-the-badge&logo=react&logoColor=black)
