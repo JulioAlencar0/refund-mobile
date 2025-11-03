@@ -40,6 +40,7 @@ Foi desenvolvida com **Node.js + Express (API)** e **React Native (Expo)**, inte
 
 ## 📁 Estrutura do Projeto
 
+```bash
 📦 refund-system
 ├── 📁 api
 │ ├── server.js
@@ -54,6 +55,8 @@ Foi desenvolvida com **Node.js + Express (API)** e **React Native (Expo)**, inte
 ├── 📁 components
 ├── 📁 screens
 └── 📁 services
+```
+
 
 
 ---
